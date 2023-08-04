@@ -45,7 +45,7 @@ public class NodeExtension extends DefaultNodeExtension {
     @Override
     public void beforeStart() {
         // TODO Get Config from Node here
-        super.beforeStart();
+        // super.beforeStart();
     }
 
     @Override

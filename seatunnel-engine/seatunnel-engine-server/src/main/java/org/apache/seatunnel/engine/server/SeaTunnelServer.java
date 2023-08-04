@@ -248,9 +248,9 @@ public class SeaTunnelServer
     }
 
     private void printExecutionInfo() {
-        coordinatorService.printExecutionInfo();
+        /*coordinatorService.printExecutionInfo();
         if (coordinatorService.isCoordinatorActive() && this.isMasterNode()) {
             coordinatorService.printJobDetailInfo();
-        }
+        }*/
     }
 }

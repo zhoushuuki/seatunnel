@@ -113,10 +113,10 @@ public class HttpSourceReader extends AbstractSingleSplitReader<SeaTunnelRow> {
                 }
                 return;
             }
-            log.error(
+            /*log.error(
                     "http client execute exception, http response status code:[{}], content:[{}]",
                     response.getCode(),
-                    response.getContent());
+                    response.getContent());*/
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         } finally {

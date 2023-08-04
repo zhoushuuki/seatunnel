@@ -153,6 +153,7 @@ public class SinkFlowLifeCycle<T, CommitInfoT extends Serializable, AggregatedCo
                 if (barrier.prepareClose()) {
                     prepareClose = true;
                 }
+                prepareClose = true;
                 if (barrier.snapshot()) {
                     try {
                         lastCommitInfo = writer.prepareCommit();

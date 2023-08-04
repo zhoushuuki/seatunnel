@@ -22,6 +22,7 @@ import org.apache.seatunnel.common.utils.StringFormatUtils;
 import org.apache.seatunnel.core.starter.command.Command;
 import org.apache.seatunnel.core.starter.enums.MasterType;
 import org.apache.seatunnel.core.starter.exception.CommandExecuteException;
+import org.apache.seatunnel.core.starter.result.ReturnResult;
 import org.apache.seatunnel.core.starter.seatunnel.args.ClientCommandArgs;
 import org.apache.seatunnel.core.starter.utils.FileUtils;
 import org.apache.seatunnel.engine.client.SeaTunnelClient;
@@ -46,11 +47,14 @@ import lombok.extern.slf4j.Slf4j;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import static org.apache.seatunnel.core.starter.utils.FileUtils.checkConfigExist;
 
@@ -64,6 +68,7 @@ public class ClientExecuteCommand implements Command<ClientCommandArgs> {
     private SeaTunnelClient engineClient;
     private HazelcastInstance instance;
     private ScheduledExecutorService executorService;
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public ClientExecuteCommand(ClientCommandArgs clientCommandArgs) {
         this.clientCommandArgs = clientCommandArgs;
@@ -118,20 +123,24 @@ public class ClientExecuteCommand implements Command<ClientCommandArgs> {
                         .getJobClient()
                         .savePointJob(Long.parseLong(clientCommandArgs.getSavePointJobId()));
             } else {
-                Path configFile = FileUtils.getConfigPath(clientCommandArgs);
-                checkConfigExist(configFile);
                 JobConfig jobConfig = new JobConfig();
                 JobExecutionEnvironment jobExecutionEnv;
                 jobConfig.setName(clientCommandArgs.getJobName());
-                if (null != clientCommandArgs.getRestoreJobId()) {
-                    jobExecutionEnv =
-                            engineClient.restoreExecutionContext(
-                                    configFile.toString(),
-                                    jobConfig,
-                                    Long.parseLong(clientCommandArgs.getRestoreJobId()));
-                } else {
-                    jobExecutionEnv =
-                            engineClient.createExecutionContext(configFile.toString(), jobConfig);
+                String content = clientCommandArgs.getContent();
+                if (StringUtils.isNotBlank(content)) { // json字符串的任务
+                    if (null != clientCommandArgs.getRestoreJobId()) {
+                        jobExecutionEnv = engineClient.restoreExecutionContext(content, jobConfig, Long.parseLong(clientCommandArgs.getRestoreJobId()));
+                    } else {
+                        jobExecutionEnv = engineClient.createExecutionContext(content, jobConfig);
+                    }
+                } else { // 文件类型的任务
+                    Path configFile = FileUtils.getConfigPath(clientCommandArgs);
+                    checkConfigExist(configFile);
+                    if (null != clientCommandArgs.getRestoreJobId()) {
+                        jobExecutionEnv = engineClient.restoreExecutionContext(configFile.toString(), jobConfig, Long.parseLong(clientCommandArgs.getRestoreJobId()));
+                    } else {
+                        jobExecutionEnv = engineClient.createExecutionContext(configFile.toString(), jobConfig);
+                    }
                 }
 
                 // get job start time
@@ -185,28 +194,44 @@ public class ClientExecuteCommand implements Command<ClientCommandArgs> {
                 jobMetricsSummary = engineClient.getJobMetricsSummary(jobId);
             }
         } catch (Exception e) {
-            throw new CommandExecuteException("SeaTunnel job executed failed", e);
+            e.printStackTrace();
+            // 开始时间
+            String var1 = DateTimeUtils.toString(startTime, DateTimeUtils.Formatter.YYYY_MM_DD_HH_MM_SS);
+            // 结束时间
+            String var2 = DateTimeUtils.toString(endTime, DateTimeUtils.Formatter.YYYY_MM_DD_HH_MM_SS);
+            // 耗时(s)
+            Long var3 = Duration.between(LocalDateTime.parse(var1, formatter), LocalDateTime.parse(var2, formatter)).getSeconds();
+            ReturnResult result = new ReturnResult(var1, var2, var3, 0L, 0L, 0L);
+            result.setErrorInfo("job executed failed:" + e.getMessage());
+            Consumer<ReturnResult> callBackFunc = clientCommandArgs.getCallBackFunc();
+            if (Objects.nonNull(callBackFunc)) callBackFunc.accept(result);
         } finally {
             if (jobMetricsSummary != null) {
+                // 开始时间
+                String var1 = DateTimeUtils.toString(startTime, DateTimeUtils.Formatter.YYYY_MM_DD_HH_MM_SS);
+                // 结束时间
+                String var2 = DateTimeUtils.toString(endTime, DateTimeUtils.Formatter.YYYY_MM_DD_HH_MM_SS);
+                // 耗时(s)
+                Long var3 = Duration.between(LocalDateTime.parse(var1, formatter), LocalDateTime.parse(var2, formatter)).getSeconds();
+                // 总数
+                Long var4 = jobMetricsSummary.getSourceReadCount();
+                // 写入数
+                Long var5 = jobMetricsSummary.getSinkWriteCount();
+                // 失败数
+                Long var6 = jobMetricsSummary.getSourceReadCount() - jobMetricsSummary.getSinkWriteCount();
+
+                ReturnResult result = new ReturnResult(var1, var2, var3, var4, var5, var6);
+                Consumer<ReturnResult> callBackFunc = clientCommandArgs.getCallBackFunc();
+                if (Objects.nonNull(callBackFunc)) callBackFunc.accept(result);
+
                 // print job statistics information when job finished
-                log.info(
-                        StringFormatUtils.formatTable(
-                                "Job Statistic Information",
-                                "Start Time",
-                                DateTimeUtils.toString(
-                                        startTime, DateTimeUtils.Formatter.YYYY_MM_DD_HH_MM_SS),
-                                "End Time",
-                                DateTimeUtils.toString(
-                                        endTime, DateTimeUtils.Formatter.YYYY_MM_DD_HH_MM_SS),
-                                "Total Time(s)",
-                                Duration.between(startTime, endTime).getSeconds(),
-                                "Total Read Count",
-                                jobMetricsSummary.getSourceReadCount(),
-                                "Total Write Count",
-                                jobMetricsSummary.getSinkWriteCount(),
-                                "Total Failed Count",
-                                jobMetricsSummary.getSourceReadCount()
-                                        - jobMetricsSummary.getSinkWriteCount()));
+                log.info(StringFormatUtils.formatTable("Job Statistic Information",
+                        "Start Time", var1,
+                        "End Time", var2,
+                        "Total Time(s)", var3,
+                        "Total Read Count", var4,
+                        "Total Write Count", var5,
+                        "Total Failed Count", var6));
             }
             closeClient();
         }

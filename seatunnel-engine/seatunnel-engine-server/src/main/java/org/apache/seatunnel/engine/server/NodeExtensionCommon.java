@@ -17,13 +17,11 @@
 
 package org.apache.seatunnel.engine.server;
 
-import org.apache.seatunnel.common.Constants;
-import org.apache.seatunnel.engine.common.Constant;
-
 import com.hazelcast.cluster.ClusterState;
 import com.hazelcast.instance.impl.Node;
 import com.hazelcast.logging.ILogger;
 import com.hazelcast.spi.impl.NodeEngineImpl;
+import org.apache.seatunnel.engine.common.Constant;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -62,8 +60,9 @@ class NodeExtensionCommon {
         log.info(imgVersionMessage());
         log.info(clusterNameMessage());
         log.fine(serializationVersionMessage());
-        log.info('\n' + Constants.ST_LOGO);
-        log.info(Constants.COPYRIGHT_LINE);
+        // 屏蔽logo和copyright的打印
+        /*log.info('\n' + Constants.ST_LOGO);
+        log.info(Constants.COPYRIGHT_LINE);*/
     }
 
     private String imgVersionMessage() {

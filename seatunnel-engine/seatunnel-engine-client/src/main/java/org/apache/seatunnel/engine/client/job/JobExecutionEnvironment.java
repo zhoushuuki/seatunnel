@@ -41,6 +41,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -130,8 +131,20 @@ public class JobExecutionEnvironment {
     }
 
     private MultipleTableJobConfigParser getJobConfigParser() {
-        return new MultipleTableJobConfigParser(
-                jobFilePath, idGenerator, jobConfig, commonPluginJars);
+        MultipleTableJobConfigParser parser;
+        boolean flag = true;
+        try{
+            Paths.get(jobFilePath);
+        }catch(Exception e){
+            flag = false;
+        }
+        if (flag){ // 文件的解析
+            parser = new MultipleTableJobConfigParser(jobFilePath, idGenerator, jobConfig, commonPluginJars);
+        }else{ // 字符串的解析
+            StringBuilder jobContent = new StringBuilder(jobFilePath);
+            parser = new MultipleTableJobConfigParser(jobContent, idGenerator, jobConfig, commonPluginJars);
+        }
+        return parser;
     }
 
     private LogicalDagGenerator getLogicalDagGenerator() {

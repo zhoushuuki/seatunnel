@@ -23,9 +23,11 @@ import org.apache.seatunnel.common.config.DeployMode;
 import com.beust.jcommander.Parameter;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.apache.seatunnel.core.starter.result.ReturnResult;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 
 /** Abstract class of {@link CommandArgs} implementation to save common configuration settings */
 @EqualsAndHashCode(callSuper = true)
@@ -67,6 +69,17 @@ public abstract class AbstractCommandArgs extends CommandArgs {
             description =
                     "Decrypt config file, When both --decrypt and --encrypt are specified, only --encrypt will take effect")
     protected boolean decrypt = false;
+
+    @Parameter(
+            names = {"-callback"},
+            description = "回调函数")
+    private Consumer<ReturnResult> callBackFunc;
+
+    @Parameter(
+            names = {"--content"},
+            description =
+                    "使用字符串的方式进行任务的执行")
+    private String content;
 
     public abstract DeployMode getDeployMode();
 }

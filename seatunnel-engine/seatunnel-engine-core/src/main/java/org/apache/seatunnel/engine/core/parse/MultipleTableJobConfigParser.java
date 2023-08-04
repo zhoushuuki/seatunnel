@@ -17,7 +17,8 @@
 
 package org.apache.seatunnel.engine.core.parse;
 
-import org.apache.seatunnel.shade.com.typesafe.config.Config;
+import org.apache.seatunnel.core.starter.utils.ConfigShadeUtils;
+import org.apache.seatunnel.shade.com.typesafe.config.*;
 
 import org.apache.seatunnel.api.common.CommonOptions;
 import org.apache.seatunnel.api.common.JobContext;
@@ -125,6 +126,27 @@ public class MultipleTableJobConfigParser {
         this.envOptions = ReadonlyConfig.fromConfig(seaTunnelJobConfig.getConfig("env"));
         this.fallbackParser = new JobConfigParser(idGenerator, commonPluginJars);
     }
+
+    public MultipleTableJobConfigParser(
+            StringBuilder jobContent,
+            IdGenerator idGenerator,
+            JobConfig jobConfig,
+            List<URL> commonPluginJars) {
+        this.idGenerator = idGenerator;
+        this.jobConfig = jobConfig;
+        this.commonPluginJars = commonPluginJars;
+        // 字符串配置的内容
+        Config config =
+                ConfigFactory.parseString(jobContent.toString(), ConfigParseOptions.defaults().setSyntax(ConfigSyntax.JSON))
+                        .resolve(ConfigResolveOptions.defaults().setAllowUnresolved(true))
+                        .resolveWith(
+                                ConfigFactory.systemProperties(),
+                                ConfigResolveOptions.defaults().setAllowUnresolved(true));
+        this.seaTunnelJobConfig = ConfigShadeUtils.decryptConfig(config);
+        this.envOptions = ReadonlyConfig.fromConfig(seaTunnelJobConfig.getConfig("env"));
+        this.fallbackParser = new JobConfigParser(idGenerator, commonPluginJars);
+    }
+
 
     public ImmutablePair<List<Action>, Set<URL>> parse() {
         List<? extends Config> sourceConfigs =
