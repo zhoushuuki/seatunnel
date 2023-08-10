@@ -186,7 +186,8 @@ public final class ConfigParserUtil {
         checkInputId(transforms, vertexStatusMap);
         checkInputId(sinks, vertexStatusMap);
         log.debug("Phase 5: Check if there are unused vertex.");
-        checkLinked(vertexStatusMap);
+        // 注释掉，定义了(源、transformer、target)就必须要使用的原则
+        // checkLinked(vertexStatusMap);
     }
 
     private static void fillVirtualVertices(

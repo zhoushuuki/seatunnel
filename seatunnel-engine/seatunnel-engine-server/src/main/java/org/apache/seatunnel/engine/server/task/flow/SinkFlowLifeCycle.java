@@ -197,9 +197,9 @@ public class SinkFlowLifeCycle<T, CommitInfoT extends Serializable, AggregatedCo
                 }
                 runningTask.ack(barrier);
             } else {
-                if (prepareClose) {
+                /*if (prepareClose) {
                     return;
-                }
+                }*/
                 writer.write((T) record.getData());
                 sinkWriteCount.inc();
                 sinkWriteQPS.markEvent();

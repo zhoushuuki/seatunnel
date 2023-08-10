@@ -36,9 +36,8 @@ public class SeaTunnelEngineExample {
         String content = "{\n" +
                 "\t\"env\": {\n" +
                 "\t\t\"job.mode\": \"BATCH\",\n" +
-                "\t\t\"execution.parallelism\": 1,\n" +
-                "\t\t\"parallelism\": 8,\n" +
-                "\t\t\"job.name\": \"测试条件过滤1\",\n" +
+                "\t\t\"parallelism\": 1,\n" +
+                "\t\t\"job.name\": \"测试条件去重\",\n" +
                 "\t\t\"checkpoint.interval\": \"1000\"\n" +
                 "\t},\n" +
                 "\t\"source\": [\n" +
@@ -54,22 +53,24 @@ public class SeaTunnelEngineExample {
                 "\t],\n" +
                 "\t\"transform\": [\n" +
                 "\t\t{\n" +
-                "\t\t\t\"source_table_name\":\"xxl_info\",\n" +
+                "\t\t\t\"source_table_name\": \"xxl_info\",\n" +
                 "\t\t\t\"result_table_name\": \"xf123\",\n" +
-                "\t\t\t\"plugin_name\": \"Strlength\",\n" +
-                "\t\t\t\"input_field\":\"name\",\n" +
-                "\t\t\t\"output_field\":\"xx\"\n" +
+                "\t\t\t\"plugin_name\": \"Encrypt\",\n" +
+                "\t\t\t\"encrypt_field\":\"[\\\"name\\\",\\\"description\\\"]\",\n" +
+                "\t\t\t\"encrypt_type\":\"DES\"\n" +
                 "\t\t}\n" +
                 "\t],\n" +
                 "\t\"sink\": [\n" +
                 "\t\t{\n" +
                 "\t\t\t\"password\": \"MyNewPass4!\",\n" +
+                "\t\t\t\"xa_data_source_class_name\": \"com.mysql.cj.jdbc.MysqlXADataSource\",\n" +
                 "\t\t\t\"driver\": \"com.mysql.cj.jdbc.Driver\",\n" +
-                "\t\t\t\"query\": \"INSERT INTO `liulin0602`(bame,id,name,status,length_) VALUES(?,?,?,?,?)\",\n" +
+                "\t\t\t\"query\": \"INSERT INTO `liulin0602`(bame,id,name,status) VALUES(?,?,?,?)\",\n" +
                 "\t\t\t\"source_table_name\": \"xf123\",\n" +
                 "\t\t\t\"plugin_name\": \"Jdbc\",\n" +
                 "\t\t\t\"user\": \"root\",\n" +
-                "\t\t\t\"url\": \"jdbc:mysql://192.168.10.200:3306/warehouse?rewriteBatchedStatements=true\"\n" +
+                "\t\t\t\"url\": \"jdbc:mysql://192.168.10.200:3306/warehouse\",\n" +
+                "\t\t\t\"is_exactly_once\": true\n" +
                 "\t\t}\n" +
                 "\t]\n" +
                 "}";

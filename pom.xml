@@ -857,4 +857,13 @@
         </profile>
     </profiles>
 
+    <!-- 公司maven私服地址 -->
+    <distributionManagement>
+        <snapshotRepository>
+            <id>wsbp-app</id>
+            <name>wsbp-app</name>
+            <url>http://124.161.16.163:28081/nexus/content/repositories/wsbp-app</url>
+        </snapshotRepository>
+    </distributionManagement>
+
 </project>

@@ -77,7 +77,7 @@ public class ZetaSQLEngine implements SQLEngine {
         try {
             Statement statement = CCJSqlParserUtil.parse(sql);
             // validate SQL statement
-            validateSQL(statement);
+            // validateSQL(statement);
             this.selectBody = (PlainSelect) ((Select) statement).getSelectBody();
         } catch (JSQLParserException e) {
             throw new TransformException(
