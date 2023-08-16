@@ -37,7 +37,7 @@ public class SeaTunnelEngineExample {
                 "\t\"env\": {\n" +
                 "\t\t\"job.mode\": \"BATCH\",\n" +
                 "\t\t\"parallelism\": 1,\n" +
-                "\t\t\"job.name\": \"测试条件去重\",\n" +
+                "\t\t\"job.name\": \"任务测试复杂过滤\",\n" +
                 "\t\t\"checkpoint.interval\": \"1000\"\n" +
                 "\t},\n" +
                 "\t\"source\": [\n" +
@@ -45,19 +45,21 @@ public class SeaTunnelEngineExample {
                 "\t\t\t\"database\": \"warehouse\",\n" +
                 "\t\t\t\"password\": \"MyNewPass4!\",\n" +
                 "\t\t\t\"host\": \"192.168.10.200:8123\",\n" +
-                "\t\t\t\"result_table_name\": \"xxl_info\",\n" +
+                "\t\t\t\"result_table_name\": \"xf1234\",\n" +
                 "\t\t\t\"plugin_name\": \"Clickhouse\",\n" +
                 "\t\t\t\"username\": \"default\",\n" +
-                "\t\t\t\"sql\": \"SELECT name,id,code,description FROM `data_catalog_class`\"\n" +
+                "\t\t\t\"sql\": \"SELECT wxZag.id,wxZag.name,wxZag.code,WyHnE.url FROM (SELECT name,id,code,description FROM `xodb_new_test_data_catalog_class` LIMIT 0, 12) wxZag LEFT JOIN (SELECT name,id,url,resource_code FROM `xodb_new_test_data_resource`) WyHnE ON wxZag.id=WyHnE.id GROUP BY code,name,id,url\"\n" +
                 "\t\t}\n" +
                 "\t],\n" +
                 "\t\"transform\": [\n" +
                 "\t\t{\n" +
-                "\t\t\t\"source_table_name\": \"xxl_info\",\n" +
-                "\t\t\t\"result_table_name\": \"xf123\",\n" +
-                "\t\t\t\"plugin_name\": \"Encrypt\",\n" +
-                "\t\t\t\"encrypt_field\":\"[\\\"name\\\",\\\"description\\\"]\",\n" +
-                "\t\t\t\"encrypt_type\":\"DES\"\n" +
+                "\t\t\t\"input_field\": \"name\",\n" +
+                "\t\t\t\"output_field\": \"xxx\",\n" +
+                "\t\t\t\"source_table_name\": [\n" +
+                "\t\t\t\t\"xf1234\"\n" +
+                "\t\t\t],\n" +
+                "\t\t\t\"result_table_name\": \"xf222\",\n" +
+                "\t\t\t\"plugin_name\": \"StrLength\"\n" +
                 "\t\t}\n" +
                 "\t],\n" +
                 "\t\"sink\": [\n" +
@@ -65,8 +67,8 @@ public class SeaTunnelEngineExample {
                 "\t\t\t\"password\": \"MyNewPass4!\",\n" +
                 "\t\t\t\"xa_data_source_class_name\": \"com.mysql.cj.jdbc.MysqlXADataSource\",\n" +
                 "\t\t\t\"driver\": \"com.mysql.cj.jdbc.Driver\",\n" +
-                "\t\t\t\"query\": \"INSERT INTO `liulin0602`(bame,id,name,status) VALUES(?,?,?,?)\",\n" +
-                "\t\t\t\"source_table_name\": \"xf123\",\n" +
+                "\t\t\t\"query\": \"INSERT INTO `liulin0602`(bame,id,name,status,length_) VALUES(?,?,?,?,?)\",\n" +
+                "\t\t\t\"source_table_name\": \"xf222\",\n" +
                 "\t\t\t\"plugin_name\": \"Jdbc\",\n" +
                 "\t\t\t\"user\": \"root\",\n" +
                 "\t\t\t\"url\": \"jdbc:mysql://192.168.10.200:3306/warehouse\",\n" +
