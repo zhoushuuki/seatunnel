@@ -17,6 +17,7 @@
 
 package org.apache.seatunnel.core.starter.flink.execution;
 
+import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.seatunnel.shade.com.typesafe.config.Config;
 import org.apache.seatunnel.shade.com.typesafe.config.ConfigUtil;
 import org.apache.seatunnel.shade.com.typesafe.config.ConfigValueFactory;
@@ -112,9 +113,10 @@ public class FlinkExecution implements TaskExecution {
                 flinkRuntimeEnvironment.getStreamExecutionEnvironment().getExecutionPlan());
         log.info("Flink job name: {}", flinkRuntimeEnvironment.getJobName());
         try {
-            flinkRuntimeEnvironment
+            JobExecutionResult result = flinkRuntimeEnvironment
                     .getStreamExecutionEnvironment()
                     .execute(flinkRuntimeEnvironment.getJobName());
+            System.out.println(result);
         } catch (Exception e) {
             throw new TaskExecuteException("Execute Flink job error", e);
         }

@@ -17,13 +17,12 @@
 
 package org.apache.seatunnel.api.configuration;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.seatunnel.shade.com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.seatunnel.shade.com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.seatunnel.shade.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.seatunnel.shade.com.typesafe.config.Config;
 import org.apache.seatunnel.shade.com.typesafe.config.ConfigRenderOptions;
-
-import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
 import java.util.Collections;
@@ -31,10 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.apache.seatunnel.api.configuration.util.ConfigUtil.convertToJsonString;
-import static org.apache.seatunnel.api.configuration.util.ConfigUtil.convertValue;
-import static org.apache.seatunnel.api.configuration.util.ConfigUtil.flatteningMap;
-import static org.apache.seatunnel.api.configuration.util.ConfigUtil.treeMap;
+import static org.apache.seatunnel.api.configuration.util.ConfigUtil.*;
 
 @Slf4j
 public class ReadonlyConfig implements Serializable {
@@ -49,7 +45,9 @@ public class ReadonlyConfig implements Serializable {
     }
 
     public static ReadonlyConfig fromMap(Map<String, Object> map) {
-        return new ReadonlyConfig(treeMap(map));
+        // ? 已经是map了，为什么还要再通过treeMap转一次
+        // return new ReadonlyConfig(treeMap(map));
+        return new ReadonlyConfig(map);
     }
 
     public static ReadonlyConfig fromConfig(Config config) {

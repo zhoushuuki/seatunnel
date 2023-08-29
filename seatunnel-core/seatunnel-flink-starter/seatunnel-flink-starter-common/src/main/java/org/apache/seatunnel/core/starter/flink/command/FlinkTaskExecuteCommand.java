@@ -17,23 +17,13 @@
 
 package org.apache.seatunnel.core.starter.flink.command;
 
-import org.apache.seatunnel.shade.com.typesafe.config.Config;
-import org.apache.seatunnel.shade.com.typesafe.config.ConfigUtil;
-import org.apache.seatunnel.shade.com.typesafe.config.ConfigValueFactory;
-
+import lombok.extern.slf4j.Slf4j;
 import org.apache.seatunnel.common.Constants;
 import org.apache.seatunnel.core.starter.command.Command;
 import org.apache.seatunnel.core.starter.exception.CommandExecuteException;
 import org.apache.seatunnel.core.starter.flink.args.FlinkCommandArgs;
 import org.apache.seatunnel.core.starter.flink.execution.FlinkExecution;
-import org.apache.seatunnel.core.starter.utils.ConfigBuilder;
-import org.apache.seatunnel.core.starter.utils.FileUtils;
-
-import lombok.extern.slf4j.Slf4j;
-
-import java.nio.file.Path;
-
-import static org.apache.seatunnel.core.starter.utils.FileUtils.checkConfigExist;
+import org.apache.seatunnel.shade.com.typesafe.config.*;
 
 @Slf4j
 public class FlinkTaskExecuteCommand implements Command<FlinkCommandArgs> {
@@ -46,9 +36,15 @@ public class FlinkTaskExecuteCommand implements Command<FlinkCommandArgs> {
 
     @Override
     public void execute() throws CommandExecuteException {
-        Path configFile = FileUtils.getConfigPath(flinkCommandArgs);
-        checkConfigExist(configFile);
-        Config config = ConfigBuilder.of(configFile);
+        // Path configFile = FileUtils.getConfigPath(flinkCommandArgs);
+        // checkConfigExist(configFile);
+        // Config config = ConfigBuilder.of(configFile);
+        Config config =  // 字符串配置的内容
+                ConfigFactory.parseString(flinkCommandArgs.getContent(), ConfigParseOptions.defaults().setSyntax(ConfigSyntax.JSON))
+                        .resolve(ConfigResolveOptions.defaults().setAllowUnresolved(true))
+                        .resolveWith(
+                                ConfigFactory.systemProperties(),
+                                ConfigResolveOptions.defaults().setAllowUnresolved(true));
         // if user specified job name using command line arguments, override config option
         if (!flinkCommandArgs.getJobName().equals(Constants.LOGO)) {
             config =
