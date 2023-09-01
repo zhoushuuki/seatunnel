@@ -25,6 +25,9 @@
 
     <artifactId>seatunnel-starter</artifactId>
     <name>SeaTunnel : Core : Starter</name>
+    <properties>
+        <clickHouse.version>0.3.2-patch11</clickHouse.version>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -58,6 +61,18 @@
             <artifactId>disruptor</artifactId>
         </dependency>
         <!-- logger provider & bridges -->
+
+        <!-- HttpClient -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.83</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.14</version>
+        </dependency>
 
     </dependencies>
 
