@@ -17,6 +17,7 @@
 
 package org.apache.seatunnel.transform.split;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.seatunnel.api.configuration.Option;
 import org.apache.seatunnel.api.configuration.Options;
 import org.apache.seatunnel.api.configuration.ReadonlyConfig;
@@ -25,6 +26,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.List;
 
 @Getter
@@ -35,6 +37,12 @@ public class SplitTransformConfig implements Serializable {
                     .stringType()
                     .noDefaultValue()
                     .withDescription("The separator to split the field");
+
+    public static final Option<SplitType> KEY_SPLIT_TYPE =
+            Options.key("split_type")
+                    .enumType(SplitType.class)
+                    .noDefaultValue()
+                    .withDescription("拆分方式");
 
     public static final Option<String> KEY_SPLIT_FIELD =
             Options.key("split_field")
@@ -50,6 +58,7 @@ public class SplitTransformConfig implements Serializable {
 
     private String separator;
     private String splitField;
+    private SplitType splitType;
     private String[] outputFields;
     private String[] emptySplits;
 
@@ -57,9 +66,29 @@ public class SplitTransformConfig implements Serializable {
         SplitTransformConfig splitTransformConfig = new SplitTransformConfig();
         splitTransformConfig.setSeparator(config.get(KEY_SEPARATOR));
         splitTransformConfig.setSplitField(config.get(KEY_SPLIT_FIELD));
+        splitTransformConfig.setSplitType(config.get(KEY_SPLIT_TYPE));
         splitTransformConfig.setOutputFields(config.get(KEY_OUTPUT_FIELDS).toArray(new String[0]));
         splitTransformConfig.setEmptySplits(
                 new String[splitTransformConfig.getOutputFields().length]);
         return splitTransformConfig;
+    }
+
+    public enum SplitType{
+        SEPARATOR_SIGN("separatorSign"),
+        BITWISE_SIGN("bitwiseSign"),
+        ;
+        private final String type_;
+
+        SplitType(String type_) {
+            this.type_ = type_;
+        }
+
+        public String getType_() {
+            return type_;
+        }
+
+        public static SplitType getType(String type) {
+            return Arrays.stream(SplitType.values()).filter(item -> StringUtils.equals(type, item.getType_())).findFirst().orElse(null);
+        }
     }
 }
